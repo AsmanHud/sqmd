@@ -1,7 +1,6 @@
 #include "HDC2080_Driver.h"
-
-#define HDC2080_ADDR 0x40
-#define HDC2080_INT_PIN 4
+#include "config.h"
+#include <Wire.h>
 
 HDC2080 th_sensor(HDC2080_ADDR);
 
@@ -12,58 +11,81 @@ void IRAM_ATTR hdcISR()
     hdcDataReady = true;
 }
 
-void setup() {
-  Serial.begin(115200);
-  delay(1000);
+void setup()
+{
+    Serial.begin(SERIAL_BAUD);
+    delay(1000);
 
-  // Initialize I2C communication
-  th_sensor.begin();
+    if (!Wire.begin(SDA_PIN, SCL_PIN, SCL_FREQ))
+    {
+        Serial.println("I2C setup failed!");
+        return;
+    }
+    Serial.println("I2C initialized.");
 
-  if (!th_sensor.isConnected()) {
-    Serial.println("HDC2080 not detected");
-    return;
-  }
-  Serial.println("HDC2080 detected");
+    if (!th_sensor.isConnected())
+    {
+        Serial.println("HDC2080 not detected!");
+        return;
+    }
+    Serial.println("HDC2080 detected.");
 
-  // Begin with a device reset
-  th_sensor.reset();
+    // Begin with a device reset
+    if (!th_sensor.reset())
+    {
+        Serial.println("HDC2080 failed reset!");
+        return;
+    }
+    Serial.println("HDC2080 reset successful.");
 
-  // Enable HDC2080 DRDY/INT pin and Data Ready interrupt source
-  th_sensor.enableInterrupt();
-  th_sensor.enableDRDYInterrupt();
+    // HDC2080 DRDY/INT is push-pull.
+    // With INT_POL = 0, DRDY event = active LOW.
+    pinMode(HDC2080_DRDY_PIN, INPUT);
 
-  // HDC2080 DRDY/INT is push-pull.
-  // With INT_POL = 0, DRDY event = active LOW.
-  pinMode(HDC2080_INT_PIN, INPUT);
+    attachInterrupt(
+        digitalPinToInterrupt(HDC2080_DRDY_PIN),
+        hdcISR,
+        FALLING);
 
-  attachInterrupt(
-    digitalPinToInterrupt(HDC2080_INT_PIN),
-    hdcISR,
-    FALLING
-  );
-
-  // Start first measurement
-  hdcDataReady = false;
-  th_sensor.triggerMeasurement();
+    // Start first measurement
+    hdcDataReady = false;
+    if (!th_sensor.triggerMeasurement())
+    {
+        Serial.println("HDC2080: Trigger measurement failed!");
+        return;
+    }
 }
 
-void loop() {
-    // if (hdcDataReady)
-    // {
-    //     hdcDataReady = false;
+void loop()
+{
+    if (hdcDataReady)
+    {
+        hdcDataReady = false;
 
-    //     float temperature = th_sensor.readTemp();
-    //     float humidity = th_sensor.readHumidity();
+        float temperature = -1;
+        float humidity = -1;
 
-    //     Serial.print("Temperature (C): ");
-    //     Serial.print(temperature);
+        if (!th_sensor.readTemperature(temperature))
+        {
+            Serial.println("HDC2080: Temperature read failed!");
+        }
+        if (!th_sensor.readHumidity(humidity))
+        {
+            Serial.println("HDC2080: Humidity read failed!");
+        }
 
-    //     Serial.print("\tHumidity (%RH): ");
-    //     Serial.println(humidity);
+        Serial.print("Temperature (C): ");
+        Serial.print(temperature);
 
-    //     delay(1000);
+        Serial.print("\tHumidity (%RH): ");
+        Serial.println(humidity);
 
-    //     // Start next measurement
-    //     th_sensor.triggerMeasurement();
-    // }
+        delay(1000);
+
+        // Start next measurement
+        if (!th_sensor.triggerMeasurement())
+        {
+            Serial.println("HDC2080: Trigger measurement failed!");
+        }
+    }
 }
