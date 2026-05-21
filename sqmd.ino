@@ -38,6 +38,19 @@ void setup()
     }
     Serial.println("HDC2080 reset successful.");
 
+    // Enable data ready interrupt generation
+    if (!th_sensor.enableInterruptPin())
+    {
+        Serial.println("HDC2080: DRDY pin enable failed!");
+        return;
+    }
+    if (!th_sensor.enableDataReadyInterrupt())
+    {
+        Serial.println("HDC2080: Data Ready Generator enable failed!");
+        return;
+    }
+    Serial.println("HDC2080: Sensor is ready for DRDY generation.");
+
     // HDC2080 DRDY/INT is push-pull.
     // With INT_POL = 0, DRDY event = active LOW.
     pinMode(HDC2080_DRDY_PIN, INPUT);

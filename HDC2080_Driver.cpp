@@ -38,10 +38,30 @@ bool HDC2080::isConnected()
         Wire.beginTransmission(_addr);
         return (Wire.endTransmission() == 0);
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
+}
+
+/*  Writing 0x04 to the CONFIG register:
+    - enables the DRDY/INT output pin
+    - keeps manual measurement mode
+    - keeps heater disabled
+    - keeps active-low interrupt polarity
+    - keeps level-sensitive interrupt mode
+*/
+bool HDC2080::enableInterruptPin()
+{
+    return writeReg(CONFIG, 0x04);
+}
+
+/*  Writing 0x80 to the INTERRUPT_CONFIG register:
+    - enables only the DataReady interrupt generator
+    - keeps all temperature/humidity threshold interrupt generators disabled
+    - keeps reserved bits at 0
+*/
+bool HDC2080::enableDataReadyInterrupt()
+{
+    return writeReg(INTERRUPT_CONFIG, 0x80);
 }
 
 bool HDC2080::readTemperature(float &t_c)
@@ -88,81 +108,29 @@ bool HDC2080::readHumidity(float &rh)
     return true;
 }
 
-/*  Bit 0 of the MEASUREMENT_CONFIG register can be used
-    to trigger measurements  */
+/*  Writing 0x01 to the MEASUREMENT_CONFIG register:
+    - triggers a measurement (bit 0 set to 1)
+    - uses 14-bit temperature resolution
+    - uses 14-bit humidity resolution
+    - measures both temperature and humidity
+
+    MEAS_TRIG (bit 0) is self-clearing after conversion completion.
+*/
 bool HDC2080::triggerMeasurement()
 {
-    uint8_t configContents;
-
-    if (!readReg(MEASUREMENT_CONFIG, configContents))
-    {
-        return false;
-    }
-
-    configContents |= 0x01;
-    return writeReg(MEASUREMENT_CONFIG, configContents);
+    return writeReg(MEASUREMENT_CONFIG, 0x01);
 }
 
-/*  Bit 7 of the CONFIG register can be used to trigger a
-    soft reset  */
+/*  Writing 0x80 to the CONFIG register triggers a soft reset.
+    The SOFT_RES bit (bit 7) is self-clearing after reset completion. */
 bool HDC2080::reset()
 {
-    uint8_t configContents;
-
-    if (!readReg(CONFIG, configContents))
-    {
-        return false;
-    }
-
-    // trigger a soft reset
-    configContents |= 0x80;
-    if (!writeReg(CONFIG, configContents))
-    {
-        return false;
-    }
+    bool res = writeReg(CONFIG, 0x80);
     delay(50);
-
-    // enable the INT pin and set it as DRDY generator
-
-    if (!enableInterruptPin())
-    {
-        return false;
-    }
-
-    return enableDataReadyInterrupt();
+    return res;
 }
 
 // private implementation
-
-/*  Bit 2 of the CONFIG register can be used to enable/disable
-    the interrupt pin  */
-bool HDC2080::enableInterruptPin()
-{
-    uint8_t configContents;
-
-    if (!readReg(CONFIG, configContents))
-    {
-        return false;
-    }
-
-    configContents |= 0x04;
-    return writeReg(CONFIG, configContents);
-}
-
-/*  Bit 7 of the INTERRUPT_CONFIG register can be used to enable/disable
-    the DataReady Interrupt generator  */
-bool HDC2080::enableDataReadyInterrupt()
-{
-    uint8_t regContents;
-
-    if (!readReg(INTERRUPT_CONFIG, regContents))
-    {
-        return false;
-    }
-
-    regContents |= 0x80;
-    return writeReg(INTERRUPT_CONFIG, regContents);
-}
 
 bool HDC2080::readReg(uint8_t reg, uint8_t &data)
 {
@@ -203,10 +171,5 @@ bool HDC2080::writeReg(uint8_t reg, uint8_t data)
         return false;
     }
 
-    if (Wire.endTransmission() != 0)
-    {
-        return false;
-    }
-
-    return true;
+    return (Wire.endTransmission() == 0);
 }

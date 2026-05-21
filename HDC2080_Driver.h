@@ -20,10 +20,12 @@ class HDC2080
 public:
     HDC2080(uint8_t addr);            // Initialize the HDC2080
     bool isConnected();               // Returns true if connected
+    bool enableInterruptPin();        // Enables the interrupt/DRDY pin
+    bool enableDataReadyInterrupt();  // Enables data ready interrupt generator
     bool readTemperature(float &t_c); // Reads the temperature in degrees C
     bool readHumidity(float &rh);     // Reads the relative humidity
     bool triggerMeasurement();        // Triggers a manual temperature/humidity reading
-    bool reset();                     // Triggers a soft reset and reconfigures DRDY interrupt output
+    bool reset();                     // Triggers a soft reset
 
     // Temperature & Humidity Resolution, default - 14 bit
     // Measurement mode,                  default - Temperature & Humidity
@@ -32,8 +34,6 @@ public:
     // Interrupt mode,                    default - Level sensitive
 private:
     uint8_t _addr;                            // Address of sensor
-    bool enableInterruptPin();                // Enables the interrupt/DRDY pin
-    bool enableDataReadyInterrupt();          // Enables data ready interrupt generator
     bool readReg(uint8_t reg, uint8_t &data); // Reads a given register
     bool writeReg(uint8_t reg, uint8_t data); // Writes a byte of data to one register
 };
