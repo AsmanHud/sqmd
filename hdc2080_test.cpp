@@ -1,5 +1,4 @@
 #include "hdc2080_test.h"
-
 #include "HDC2080_Driver.h"
 #include "config.h"
 #include <Wire.h>
@@ -36,7 +35,7 @@ void hdc2080_test_setup()
     // Begin with a device reset
     if (!th_sensor.reset())
     {
-        Serial.println("HDC2080 failed reset!");
+        Serial.println("HDC2080: Failed reset!");
         return;
     }
     Serial.println("HDC2080: Reset successful.");
