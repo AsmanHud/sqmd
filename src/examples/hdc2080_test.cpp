@@ -1,6 +1,6 @@
 #include "hdc2080_test.h"
-#include "HDC2080_Driver.h"
-#include "config.h"
+#include "../sensors/HDC2080_Driver.h"
+#include "../config.h"
 #include <Wire.h>
 
 volatile bool hdcDataReady = false;

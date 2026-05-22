@@ -1,6 +1,6 @@
-#include "blink_test.h"
-#include "hdc2080_test.h"
-#include "accel_test.h"
+#include "src/examples/blink_test.h"
+#include "src/examples/hdc2080_test.h"
+#include "src/examples/accel_test.h"
 
 void setup()
 {

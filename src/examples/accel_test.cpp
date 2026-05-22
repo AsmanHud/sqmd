@@ -1,6 +1,6 @@
 #include "accel_test.h"
-#include "FXLS8971CF_Driver.h"
-#include "config.h"
+#include "../sensors/FXLS8971CF_Driver.h"
+#include "../config.h"
 #include <Wire.h>
 
 FXLS8971CF accel(FXLS8971CF_ADDR);
