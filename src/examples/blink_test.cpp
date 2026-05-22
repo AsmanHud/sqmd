@@ -10,7 +10,7 @@ void blink_test_setup()
 void blink_test_loop()
 {
     digitalWrite(USER_LED, LOW);
-    delay(500);
+    delay(100);
     digitalWrite(USER_LED, HIGH);
     delay(5000);
 }
