@@ -6,3 +6,5 @@ IndentAccessModifiers: false
 AccessModifierOffset: -4
 IndentCaseLabels: false
 ColumnLimit: 0
+SortIncludes:
+    Enabled: false
