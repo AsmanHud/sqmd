@@ -45,14 +45,14 @@ bool FXLS8971CF::isConnected()
     return (id == 0x83);
 }
 
-/*  Writing 0x03 to the SENS_CONFIG1 register:
-    - sets FSR[1:0] = 01, selecting ±4 g range
+/*  Writing 0x07 to the SENS_CONFIG1 register:
+    - sets FSR[1:0] = 11b; +-16 g; 7.81 mg/LSB (128 LSB/g) nominal sensitivity
     - sets ACTIVE = 1, placing the device into Active mode
     - keeps self-test and SPI mode bits disabled
 */
 bool FXLS8971CF::configure()
 {
-    return writeReg(SENS_CONFIG1, 0x03);
+    return writeReg(SENS_CONFIG1, 0x07);
 }
 
 bool FXLS8971CF::readAcceleration(float &x_g, float &y_g, float &z_g)
@@ -68,10 +68,10 @@ bool FXLS8971CF::readAcceleration(float &x_g, float &y_g, float &z_g)
     int16_t rawY = ((int16_t)data[3] << 8) | data[2];
     int16_t rawZ = ((int16_t)data[5] << 8) | data[4];
 
-    // assumes default measurement scale: +-4g, 512 LSB/g
-    x_g = rawX / 512.0f;
-    y_g = rawY / 512.0f;
-    z_g = rawZ / 512.0f;
+    // assuming 7.81 mg/LSB (128 LSB/g) nominal sensitivity is chosen
+    x_g = rawX / 128.0f;
+    y_g = rawY / 128.0f;
+    z_g = rawZ / 128.0f;
 
     return true;
 }
