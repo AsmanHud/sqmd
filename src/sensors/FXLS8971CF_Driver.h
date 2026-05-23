@@ -17,8 +17,6 @@ public:
     bool configure();                                          // Configures the accelerometer for normal operation
     bool readAcceleration(float &x_g, float &y_g, float &z_g); // Reads acceleration in g
     bool reset();                                              // Triggers a soft reset
-
-    // Full-scale measurement range (FSR): +-16 g; 7.81 mg/LSB (128 LSB/g) nominal sensitivity
 private:
     uint8_t _addr;
     bool readRegs(uint8_t startReg, uint8_t *buffer, uint8_t length); // Reads multiple registers

@@ -10,9 +10,13 @@
 #include <Wire.h>
 
 // register map from the datasheet
-#define OUT_X_LSB 0x04
+#define INT_STATUS 0x00
+#define OUT_X_LSB 0x04 // -> 0x09
+#define BUF_STATUS 0x0B
+#define BUF_X_LSB 0x0C // -> 0x11
 #define WHO_AM_I 0x13
 #define SENS_CONFIG1 0x15
+#define SENS_CONFIG3 0x17
 
 // public implementation
 
@@ -45,14 +49,23 @@ bool FXLS8971CF::isConnected()
     return (id == 0x83);
 }
 
-/*  Writing 0x07 to the SENS_CONFIG1 register:
-    - sets FSR[1:0] = 11b; +-16 g; 7.81 mg/LSB (128 LSB/g) nominal sensitivity
-    - sets ACTIVE = 1, placing the device into Active mode
-    - keeps self-test and SPI mode bits disabled
-*/
 bool FXLS8971CF::configure()
 {
-    return writeReg(SENS_CONFIG1, 0x07);
+    /*  Writing 0x07 to the SENS_CONFIG1 register:
+        - sets FSR[1:0] = 11b; +-16 g; 7.81 mg/LSB (128 LSB/g) nominal sensitivity
+        - sets ACTIVE = 1, placing the device into Active mode
+        - keeps self-test and SPI mode bits disabled  */
+    if (!writeReg(SENS_CONFIG1, 0x07))
+    {
+        return false;
+    }
+
+    /*  Writing 0x22 to the SENS_CONFIG3 register:
+        - sets ODR = 800 Hz  */
+    if (!writeReg(SENS_CONFIG3, 0x22))
+    {
+        return false;
+    }
 }
 
 bool FXLS8971CF::readAcceleration(float &x_g, float &y_g, float &z_g)
