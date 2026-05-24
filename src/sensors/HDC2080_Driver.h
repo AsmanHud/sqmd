@@ -18,14 +18,15 @@
 class HDC2080
 {
 public:
-    HDC2080(uint8_t addr);            // Initialize the HDC2080
-    bool isConnected();               // Returns true if connected
-    bool enableInterruptPin();        // Enables the interrupt/DRDY pin
-    bool enableDataReadyInterrupt();  // Enables data ready interrupt generator
-    bool readTemperature(float &t_c); // Reads the temperature in degrees C
-    bool readHumidity(float &rh);     // Reads the relative humidity
-    bool triggerMeasurement();        // Triggers a manual temperature/humidity reading
-    bool reset();                     // Triggers a soft reset
+    HDC2080(uint8_t addr);              // Initialize the HDC2080
+    bool isConnected();                 // Returns true if connected
+    bool enableInterruptPin();          // Enables the interrupt/DRDY pin
+    bool enableDataReadyInterrupt();    // Enables data ready interrupt generator
+    bool readDRDYFlag(bool &dataReady); // Checks if the data is ready, DRDY_STATUS is cleared when read
+    bool readTemperature(float &t_c);   // Reads the temperature in degrees C
+    bool readHumidity(float &rh);       // Reads the relative humidity
+    bool triggerMeasurement();          // Triggers a manual temperature/humidity reading
+    bool reset();                       // Triggers a soft reset
 
     // Temperature & Humidity Resolution, default - 14 bit
     // Measurement mode,                  default - Temperature & Humidity

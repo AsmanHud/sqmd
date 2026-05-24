@@ -20,6 +20,7 @@
 #define TEMP_HIGH 0x01
 #define HUMID_LOW 0x02
 #define HUMID_HIGH 0x03
+#define INT_DRDY 0x04
 #define INTERRUPT_CONFIG 0x07
 #define CONFIG 0x0E
 #define MEASUREMENT_CONFIG 0x0F
@@ -62,6 +63,18 @@ bool HDC2080::enableInterruptPin()
 bool HDC2080::enableDataReadyInterrupt()
 {
     return writeReg(INTERRUPT_CONFIG, 0x80);
+}
+
+bool HDC2080::readDRDYFlag(bool &dataReady)
+{
+    uint8_t data;
+    if (!readReg(INT_DRDY, data))
+    {
+        return false;
+    }
+
+    dataReady = (data & 0x80) != 0;
+    return true;
 }
 
 bool HDC2080::readTemperature(float &t_c)
