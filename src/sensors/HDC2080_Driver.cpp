@@ -126,7 +126,7 @@ bool HDC2080::triggerMeasurement()
 bool HDC2080::reset()
 {
     bool res = writeReg(CONFIG, 0x80);
-    delay(50);
+    delay(50); // Lime Labs recommendation for soft reset duration
     return res;
 }
 
