@@ -1,7 +1,7 @@
 #define HDC2080_DRDY_PIN 4
 #define USER_LED 14
-#define FXL8971_INT1_PIN 18
-// #define FXL8971_WAKEUP_PIN 19 - unused in current implementation
+#define FXLS8971CF_INT1_PIN 18
+// #define FXLS8971CF_WAKEUP_PIN 19 - unused in current implementation
 #define SDA_PIN 21
 #define SCL_PIN 22
 #define SCL_FREQ 100000UL
