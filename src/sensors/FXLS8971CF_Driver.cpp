@@ -18,6 +18,7 @@
 #define SENS_CONFIG5 0x19
 #define INT_EN 0x20
 #define BUF_CONFIG1 0x26
+#define SDCD_INT_SRC1 0x2D
 #define SDCD_CONFIG1 0x2F
 #define SDCD_CONFIG2 0x30
 #define SDCD_LTHS_LSB 0x33
@@ -124,12 +125,13 @@ bool FXLS8971CF::configure()
         return false;
     }
 
-    /*  Writing 0x20 to the SDCD_CONFIG1 register:
+    /*  Writing 0xA0 to the SDCD_CONFIG1 register:
+        - enables outside of thresholds event flag latching, it is required to reliably wake ESP32 from light sleep on SDCD events
         - sets X_OT_EN = 1; X-axis channel is required for vector magnitude comparison (SDCD_OT function)
         - keeps the Y/Z_OT_EN bits disabled, since they are not needed for vector magnitude comparison
         - keeps all X/Y/Z_WT_EN bits disabled, so SDCD_WT function is effectively disabled
-        - keeps event flag latching disabled  */
-    if (!writeReg(SDCD_CONFIG1, 0x20))
+        - keeps within thresholds event flag latching disabled  */
+    if (!writeReg(SDCD_CONFIG1, 0xA0))
     {
         return false;
     }
@@ -169,6 +171,22 @@ bool FXLS8971CF::configure()
         - sets ACTIVE = 1, placing the device into Active mode
         - keeps self-test and SPI mode bits disabled  */
     return writeReg(SENS_CONFIG1, 0x07);
+}
+
+bool FXLS8971CF::readSDCDEventFlag(bool &eventActiveFlag, bool &xAxisEventFlag, bool &xAxisPolFlag)
+{
+    uint8_t data;
+
+    if (!readReg(SDCD_INT_SRC1, data))
+    {
+        return false;
+    }
+
+    eventActiveFlag = (data & 0x80) != 0;
+    xAxisEventFlag = (data & 0x20) != 0;
+    xAxisPolFlag = (data & 0x10) != 0;
+
+    return true;
 }
 
 bool FXLS8971CF::readBufCount(uint8_t &count)

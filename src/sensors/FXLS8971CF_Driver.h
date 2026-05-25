@@ -18,11 +18,17 @@ public:
     bool isConnected();                // Returns true if connected
     bool configure();                  // Configures the accelerometer for normal operation
     bool readBufCount(uint8_t &count); // Reads the number of samples currently in the buffer
+    // Reads multiple samples from the buffer
     bool readBuffer(float *xSamples,
                     float *ySamples,
                     float *zSamples,
-                    uint8_t numSamples); // Reads multiple samples from the buffer
-    bool reset();                        // Triggers a soft reset
+                    uint8_t numSamples);
+    // Reads SDCD_INT_SRC1. If the SDCD event is latched,
+    // this read clears the latched SDCD source and allows INT1 to deassert.
+    bool readSDCDEventFlag(bool &eventActiveFlag,
+                           bool &xAxisEventFlag,
+                           bool &xAxisPolFlag);
+    bool reset(); // Triggers a soft reset
 
     // FSR = +-16 g; 7.81 mg/LSB (128 LSB/g) nominal sensitivity
     // ODR = 800 Hz; fixed
