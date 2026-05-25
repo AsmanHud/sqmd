@@ -209,18 +209,18 @@ bool FXLS8971CF::readBuffer(float *xSamples, float *ySamples, float *zSamples, u
         return false;
     }
 
-    uint8_t byteBuffer[6 * numSamples];
-
-    if (!readRegs(BUF_X_LSB, byteBuffer, 6 * numSamples))
+    for (uint8_t i = 0; i < numSamples; i++)
     {
-        return false;
-    }
+        uint8_t byteBuffer[6];
 
-    for (int i = 0; i < numSamples; i++)
-    {
-        int16_t rawX = (byteBuffer[6 * i + 1] << 8) | byteBuffer[6 * i];
-        int16_t rawY = (byteBuffer[6 * i + 3] << 8) | byteBuffer[6 * i + 2];
-        int16_t rawZ = (byteBuffer[6 * i + 5] << 8) | byteBuffer[6 * i + 4];
+        if (!readRegs(BUF_X_LSB, byteBuffer, 6))
+        {
+            return false;
+        }
+
+        int16_t rawX = (int16_t)((byteBuffer[1] << 8) | byteBuffer[0]);
+        int16_t rawY = (int16_t)((byteBuffer[3] << 8) | byteBuffer[2]);
+        int16_t rawZ = (int16_t)((byteBuffer[5] << 8) | byteBuffer[4]);
 
         xSamples[i] = ((float)rawX) / 128.0f;
         ySamples[i] = ((float)rawY) / 128.0f;
