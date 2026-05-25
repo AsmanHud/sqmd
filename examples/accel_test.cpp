@@ -4,7 +4,6 @@
 #include <Wire.h>
 
 static uint32_t lastEventEndMs = 0;
-const uint32_t SDCD_EVENT_COOLDOWN_MS = 200;
 volatile bool sdcdOtInt = false;
 
 void IRAM_ATTR fxlISR()
